@@ -44,13 +44,15 @@ impl AppCompatList {
     }
 
     pub fn sort_list(&mut self) {
-        self.0.sort_by(|a, b| a.app_name.to_lowercase().cmp(&b.app_name.to_lowercase()));
+        self.0
+            .sort_by(|a, b| a.app_name.to_lowercase().cmp(&b.app_name.to_lowercase()));
     }
 }
 
 impl Display for AppCompatList {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        let app_list = self.0
+        let app_list = self
+            .0
             .iter()
             .map(|app| format!("{}", app))
             .collect::<Vec<String>>()
@@ -58,10 +60,6 @@ impl Display for AppCompatList {
 
         let full_table = format!("|App Name|Package Name|Status|Requires GMS|Requires Installed by Play|\n|---|---|---|---|---|\n{}", app_list);
 
-        write!(
-            f,
-            "{}",
-            full_table
-        )
+        write!(f, "{}", full_table)
     }
 }

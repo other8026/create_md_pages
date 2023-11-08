@@ -1,11 +1,11 @@
-use std::fmt;
-use std::fmt::Display;
 use crate::stdin_functions::{
     get_bool_from_user::get_bool_from_user, get_option_bool_from_user::get_option_bool_from_user,
     get_string_from_user::get_string_from_user,
 };
 use crate::structs::bool_or_none::BoolOrNone;
 use serde::{Deserialize, Serialize};
+use std::fmt;
+use std::fmt::Display;
 
 #[derive(Debug, Deserialize, Serialize)]
 pub struct AppCompatApp {
@@ -32,7 +32,7 @@ impl AppCompatApp {
         let works = get_bool_from_user("Does the app work? (y/n)")?;
 
         // if works is false, then just return a faster "doesn't work" thing
-        if !works{
+        if !works {
             return Ok(Self {
                 app_name,
                 package_name,
@@ -80,6 +80,14 @@ impl Display for AppCompatApp {
             (false, false) => "❌",
         };
 
-        write!(f, "|{}|`{}`|{}|{}|{}|", self.app_name, self.package_name, status_icon, self.requires_gms, self.requires_installed_by_play)
+        write!(
+            f,
+            "|{}|`{}`|{}|{}|{}|",
+            self.app_name,
+            self.package_name,
+            status_icon,
+            self.requires_gms,
+            self.requires_installed_by_play
+        )
     }
 }

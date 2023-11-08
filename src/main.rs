@@ -51,8 +51,7 @@ fn main() -> Result<(), String> {
         apps.sort_list();
 
         // create the file
-        let mut md_file =
-            File::create(opt.output_md_file.unwrap()).map_err(|e| e.to_string())?;
+        let mut md_file = File::create(opt.output_md_file.unwrap()).map_err(|e| e.to_string())?;
 
         // write the whole file
         md_file
@@ -71,7 +70,7 @@ fn main() -> Result<(), String> {
 
         Ok(())
     } else {
-        Err("You must pick either run or check.".to_string())
+        Err("You must pick either run or check. Run with --help for command line options.".to_string())
     }
 }
 
