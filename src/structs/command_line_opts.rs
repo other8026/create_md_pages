@@ -10,9 +10,6 @@ pub struct CommandLineOpts {
     /// Use this to run the thing and create the file.
     #[structopt(long)]
     pub run: bool,
-    /// Use this for checking if everything is working correctly.
-    #[structopt(long)]
-    pub check: bool,
 
     /// An input yaml for creating the .md files.
     /// Required for run and check.

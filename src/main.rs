@@ -30,14 +30,13 @@ fn main() -> Result<(), String> {
         serde_yaml::to_writer(&new_config_file, &new_app).map_err(|e| e.to_string())?;
 
         Ok(())
-    } else if opt.check || opt.run {
+    } else if opt.run {
         // check to make sure folders and files are valid
         if !opt.yaml_file.clone().is_some_and(|file| file.is_file())
             || !opt.clone().app_files_folder.is_dir()
-            // if --check, then no need for the output md file
-            || !(opt.clone().output_md_file.is_some() || opt.check)
+            || !opt.clone().output_md_file.is_some()
         {
-            return Err("A file or folder is not valid. Exiting".to_string());
+            return Err("Cannot run due to one of the paths provided not being valid. Please check your paths and try again.".to_string());
         }
 
         // get the data from the yaml file
@@ -47,35 +46,32 @@ fn main() -> Result<(), String> {
 
         let mut apps = AppCompatList::new_from_folder(opt.app_files_folder)?;
 
-        // only create the md file if the --run flag is passed
-        if opt.run {
-            // sorting apps here because they only need to be sorted if printing something,
-            // otherwise it doesn't matter if they're out of order during a simple check
-            apps.sort_list();
+        // sorting apps here because they only need to be sorted if printing something,
+        // otherwise it doesn't matter if they're out of order during a simple check
+        apps.sort_list();
 
-            // create the file
-            let mut md_file =
-                File::create(opt.output_md_file.unwrap()).map_err(|e| e.to_string())?;
+        // create the file
+        let mut md_file =
+            File::create(opt.output_md_file.unwrap()).map_err(|e| e.to_string())?;
 
-            // write the whole file
-            md_file
-                .write_all(
-                    format!(
-                        "+++\ntitle = \"{}\"\ndescription = \"{}\"\n\n[extra]\n\nrelated = []\n+++\n{}\n{}\n\n{}",
-                        yaml_file.title,
-                        yaml_file.description,
-                        option_to_string_or_empty(yaml_file.before_text),
-                        apps,
-                        option_to_string_or_empty(yaml_file.after_text)
-                    )
-                        .as_bytes(),
+        // write the whole file
+        md_file
+            .write_all(
+                format!(
+                    "+++\ntitle = \"{}\"\ndescription = \"{}\"\n\n[extra]\n\nrelated = []\n+++\n{}\n{}\n\n{}",
+                    yaml_file.title,
+                    yaml_file.description,
+                    option_to_string_or_empty(yaml_file.before_text),
+                    apps,
+                    option_to_string_or_empty(yaml_file.after_text)
                 )
-                .map_err(|e| e.to_string())?;
-        }
+                    .as_bytes(),
+            )
+            .map_err(|e| e.to_string())?;
 
         Ok(())
     } else {
-        Err("You must pick one of the three running modes: add, run, or check.".to_string())
+        Err("You must pick either run or check.".to_string())
     }
 }
 
