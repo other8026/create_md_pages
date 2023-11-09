@@ -22,7 +22,10 @@ fn main() -> Result<(), String> {
         let new_app = AppCompatApp::new_from_command_line().map_err(|e| e.to_string())?;
 
         // save the file
-        new_app.save_to_file(&mut opt.app_files_folder.clone(), format!("{}.yaml", &new_app.package_name))?;
+        new_app.save_to_file(
+            &mut opt.app_files_folder.clone(),
+            format!("{}.yaml", &new_app.package_name),
+        )?;
 
         Ok(())
     } else if opt.run {
@@ -65,7 +68,10 @@ fn main() -> Result<(), String> {
 
         Ok(())
     } else {
-        Err("You must pick either run or check. Run with --help for command line options.".to_string())
+        Err(
+            "You must pick either run or check. Run with --help for command line options."
+                .to_string(),
+        )
     }
 }
 

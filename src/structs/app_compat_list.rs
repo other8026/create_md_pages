@@ -1,6 +1,4 @@
 use crate::structs::app_compat_app::AppCompatApp;
-use std::fmt;
-use std::fmt::Display;
 use std::fs::{read_dir, File};
 use std::path::PathBuf;
 
@@ -56,6 +54,6 @@ impl AppCompatList {
             .collect::<Vec<String>>()
             .join("\n");
 
-        format!("|App Name|Package Name|Status|Requires GMS|Requires Installed by Play|\n|---|---|---|---|---|\n{}", app_list)
+        format!("|App Name|Package Name|Status|Works w/out GMS|Works w/out being installed by Play|\n|---|---|---|---|---|\n{}", app_list)
     }
 }

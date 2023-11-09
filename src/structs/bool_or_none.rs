@@ -8,11 +8,11 @@ impl Display for BoolOrNone {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
         let r = if let Some(b) = self.0 {
             match b {
-                true => "yes",
-                false => "no",
+                true => "✅",
+                false => "❌",
             }
         } else {
-            "?"
+            "❓"
         };
         write!(f, "{}", r)
     }

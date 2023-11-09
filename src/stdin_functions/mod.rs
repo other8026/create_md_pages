@@ -1,5 +1,6 @@
 pub mod get_bool_from_user;
 pub mod get_option_bool_from_user;
+pub mod get_option_string_from_user;
 pub mod get_string_from_user;
 
 use crate::structs::bool_or_none::BoolOrNone;
