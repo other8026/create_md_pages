@@ -4,8 +4,6 @@ use crate::stdin_functions::{
 };
 use crate::structs::bool_or_none::BoolOrNone;
 use serde::{Deserialize, Serialize};
-use std::fmt;
-use std::fmt::Display;
 use std::fs::File;
 use std::path::PathBuf;
 
@@ -72,6 +70,24 @@ impl AppCompatApp {
         })
     }
 
+    pub fn print_table_line(&self) -> String {
+        let status_icon = match (self.works, self.requires_compat_mode) {
+            (true, true) => "⚠️",
+            (true, false) => "✅",
+            (false, true) => "❌",
+            (false, false) => "❌",
+        };
+
+        format!(
+            "|{}|`{}`|{}|{}|{}|",
+            self.app_name,
+            self.package_name,
+            status_icon,
+            self.requires_gms,
+            self.requires_installed_by_play
+        )
+    }
+
     // save this struct to a path
     pub fn save_to_file(&self, path: &mut PathBuf, filename: String) -> Result<(), String> {
         path.push(filename);
@@ -85,26 +101,5 @@ impl AppCompatApp {
         serde_yaml::to_writer(&new_config_file, self).map_err(|e| e.to_string())?;
 
         Ok(())
-    }
-}
-
-impl Display for AppCompatApp {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        let status_icon = match (self.works, self.requires_compat_mode) {
-            (true, true) => "⚠️",
-            (true, false) => "✅",
-            (false, true) => "❌",
-            (false, false) => "❌",
-        };
-
-        write!(
-            f,
-            "|{}|`{}`|{}|{}|{}|",
-            self.app_name,
-            self.package_name,
-            status_icon,
-            self.requires_gms,
-            self.requires_installed_by_play
-        )
     }
 }
