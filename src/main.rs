@@ -21,13 +21,8 @@ fn main() -> Result<(), String> {
         // get info from user to make new csv entry
         let new_app = AppCompatApp::new_from_command_line().map_err(|e| e.to_string())?;
 
-        // check if the config file already exists
-        let mut config_path = opt.app_files_folder.clone();
-        config_path.push(format!("{}.yaml", &new_app.package_name));
-
-        // write to file
-        let new_config_file = File::create(config_path).map_err(|e| e.to_string())?;
-        serde_yaml::to_writer(&new_config_file, &new_app).map_err(|e| e.to_string())?;
+        // save the file
+        new_app.save_to_file(&mut opt.app_files_folder.clone(), format!("{}.yaml", &new_app.package_name))?;
 
         Ok(())
     } else if opt.run {

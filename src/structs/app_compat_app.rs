@@ -6,6 +6,8 @@ use crate::structs::bool_or_none::BoolOrNone;
 use serde::{Deserialize, Serialize};
 use std::fmt;
 use std::fmt::Display;
+use std::fs::File;
+use std::path::PathBuf;
 
 #[derive(Debug, Deserialize, Serialize)]
 pub struct AppCompatApp {
@@ -68,6 +70,21 @@ impl AppCompatApp {
             requires_installed_by_play,
             comment,
         })
+    }
+
+    // save this struct to a path
+    pub fn save_to_file(&self, path: &mut PathBuf, filename: String) -> Result<(), String> {
+        path.push(filename);
+
+        // don't save over an old file
+        if path.is_file() {
+            return Err("This file already exists.\nPlease update the file manually.".to_string());
+        }
+
+        let new_config_file = File::create(path).map_err(|e| e.to_string())?;
+        serde_yaml::to_writer(&new_config_file, self).map_err(|e| e.to_string())?;
+
+        Ok(())
     }
 }
 
