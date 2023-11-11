@@ -71,20 +71,35 @@ impl AppCompatApp {
         })
     }
 
-    pub fn print_table_line(&self) -> String {
+    // convenience function to get the first character of the app name
+    pub fn get_name_first_char(&self) -> char {
+        self.app_name
+            .chars()
+            .nth(0)
+            .expect("Unable to get the first letter of an app name. Is it empty?")
+            .to_ascii_uppercase()
+    }
+
+    pub fn print_card_line(&self) -> String {
         let general_status_icon = match (self.works, self.works_without_compat_mode) {
             (true, true) => "✅",
             (true, false) => "⚠️",
             _ => "❌",
         };
 
-        format!(
-            "|{}|`{}`|{}|{}|{}|",
+        format!("{{{{ app_compat_card( app_name = \"{}\", package_name = \"{}\", works = \"{}\", works_without_gms = \"{}\", works_installed_by_any_source = \"{}\", comments = \"{}\" ) }}}}",
             self.app_name,
             self.package_name,
             general_status_icon,
             self.works_without_gms,
-            self.works_installed_by_any_source
+            self.works_installed_by_any_source,
+            if let Some(c) = &self.comment {
+                // replace all " to ' because double quotes will
+                // mess up the shortcode
+                c.replace("\"", "'")
+            } else {
+                "".to_string()
+            }
         )
     }
 

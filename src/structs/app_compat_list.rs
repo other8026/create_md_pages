@@ -4,6 +4,11 @@ use std::path::PathBuf;
 
 pub struct AppCompatList(Vec<AppCompatApp>);
 
+const FAKE_FIRST_CHAR: char = 'z';
+
+const DIV_START_STRING: &'static str = "{{ app_compat_div_start() }}";
+const DIV_END_STRING: &'static str = "{{ app_compat_div_end() }}";
+
 impl AppCompatList {
     pub fn new_from_folder(folder: PathBuf) -> Result<Self, String> {
         // get directory contents
@@ -46,14 +51,42 @@ impl AppCompatList {
             .sort_by(|a, b| a.app_name.to_lowercase().cmp(&b.app_name.to_lowercase()));
     }
 
-    pub fn print_table(&self) -> String {
-        let app_list = self
-            .0
-            .iter()
-            .map(|app| format!("{}", app.print_table_line()))
-            .collect::<Vec<String>>()
-            .join("\n");
+    pub fn print_cards_list(&self) -> String {
+        // keep a list of all the letters that app names start with
+        let mut contents_list = vec![];
 
-        format!("|App Name|Package Name|Status|Works w/out GMS|Works w/out being installed by Play|\n|---|---|---|---|---|\n{}", app_list)
+        // keep a list of strings to print (joined by \n)
+        let mut strings_list = vec![];
+
+        // the list should already be sorted, so just assuming that to make it easier
+        // 'Z' won't be the first, so just use this first
+        let mut last: char = FAKE_FIRST_CHAR;
+
+        for app in self.0.iter() {
+            // check if the letter is the same as `last`
+            // if not, then add that
+            // this should be used so I can make a sort of TOC to link to
+            let letter = app.get_name_first_char();
+            if letter != last {
+                if letter != FAKE_FIRST_CHAR {
+                    // end the previous div
+                    strings_list.push(DIV_END_STRING.to_string());
+                }
+                contents_list.push(letter);
+                strings_list.push(format!("\n# {}\n", letter));
+                last = letter;
+
+                // new div should start after the new letter is added
+                strings_list.push(DIV_START_STRING.to_string());
+            }
+
+            // checked the first letter, so add this thing to the strings list
+            strings_list.push(app.print_card_line());
+        }
+
+        strings_list.push(DIV_END_STRING.to_string());
+
+        // print the strings list with line breaks between
+        strings_list.join("\n")
     }
 }

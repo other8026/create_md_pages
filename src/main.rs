@@ -59,7 +59,7 @@ fn main() -> Result<(), String> {
                     yaml_file.title,
                     yaml_file.description,
                     option_to_string_or_empty(yaml_file.before_text),
-                    apps.print_table(),
+                    apps.print_cards_list(),
                     option_to_string_or_empty(yaml_file.after_text)
                 )
                     .as_bytes(),
