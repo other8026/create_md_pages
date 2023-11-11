@@ -87,8 +87,7 @@ impl AppCompatApp {
             _ => "❌",
         };
 
-        format!("{{{{ app_compat_card( works_bool = {}, app_name = \"{}\", package_name = \"{}\", works = \"{}\", works_without_gms = \"{}\", works_installed_by_any_source = \"{}\", comments = \"{}\" ) }}}}",
-            self.works,
+        format!("{{{{ app_compat_card( app_name = \"{}\", package_name = \"{}\", works = \"{}\", works_without_gms = \"{}\", works_installed_by_any_source = \"{}\", comments = \"{}\", works_bool = {} ) }}}}",
             self.app_name,
             self.package_name,
             general_status_icon,
@@ -100,7 +99,8 @@ impl AppCompatApp {
                 c.replace("\"", "'")
             } else {
                 "".to_string()
-            }
+            },
+            self.works,
         )
     }
 
