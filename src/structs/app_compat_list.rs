@@ -25,11 +25,12 @@ impl AppCompatList {
                     .to_str()
                     .expect("cannot convert filename to string");
 
-                // skip the template, directories, any dot files, and any files that aren't yaml files
-                if filename == "_template.yaml"
-                    || f.is_dir()
-                    || !filename.ends_with(".yaml")
+                // skip the template (any file with a filename that starts with `_`,
+                // directories, any dot files, and any files that aren't yaml files
+                if f.is_dir()
+                    || !(filename.ends_with(".yaml") || filename.ends_with(".yml"))
                     || filename.starts_with(".")
+                    || filename.starts_with("_")
                 {
                     println!("Skipping {}", filename);
                     return None;
