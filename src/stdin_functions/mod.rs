@@ -21,7 +21,7 @@ pub fn answer_string_to_bool(input: String) -> Result<bool, String> {
 // convert string to actual Optional bool
 pub fn answer_string_to_option_bool(input: String) -> Result<BoolOrNone, String> {
     let trimmed = input.trim();
-    if trimmed.len() == 0 || input == "idk" {
+    if trimmed.len() == 0 {
         Ok(BoolOrNone(None))
     } else {
         Ok(BoolOrNone(Some(answer_string_to_bool(input)?)))

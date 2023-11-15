@@ -51,11 +51,11 @@ impl AppCompatApp {
         )?;
 
         // get whether the app requires Google Play etc to be installed in the same profile
-        let works_without_gms = get_option_bool_from_user("Does the app work without Google Play being installed in the same profile? (y/n/idk or just leave this empty)")?;
+        let works_without_gms = get_option_bool_from_user("Does the app work without Google Play being installed in the same profile? (y/n or just leave this empty)")?;
 
         // get whether the app requires that it's installed by Google Play
         let works_installed_by_any_source =
-            get_option_bool_from_user("Does the app if installed by an app other than Google Play? (y/n/idk or just leave this empty)")?;
+            get_option_bool_from_user("Does the app if installed by an app other than Google Play? (y/n or just leave this empty)")?;
 
         let comment =
             get_option_string_from_user("Any other comments about the app's compatibility?")?;
@@ -94,9 +94,7 @@ impl AppCompatApp {
             self.works_without_gms,
             self.works_installed_by_any_source,
             if let Some(c) = &self.comment {
-                // replace all " to ' because double quotes will
-                // mess up the shortcode
-                c.replace("\"", "'")
+                c.to_string()
             } else {
                 "".to_string()
             },
@@ -104,7 +102,6 @@ impl AppCompatApp {
         )
     }
 
-    // save this struct to a path
     pub fn save_to_file(&self, path: &mut PathBuf, filename: String) -> Result<(), String> {
         path.push(filename);
 
@@ -117,5 +114,17 @@ impl AppCompatApp {
         serde_yaml::to_writer(&new_config_file, self).map_err(|e| e.to_string())?;
 
         Ok(())
+    }
+
+    // remove all double quotes here so that they don't mess up the
+    // shortcode in the `.md` file
+    // This shouldn't be necessary, but I'll use as a failsafe.
+    pub fn remove_double_quotes_from_all_string_fields(&mut self) {
+        self.app_name = self.app_name.replace("\"", "'");
+        self.package_name = self.package_name.replace("\"", "'");
+
+        if let Some(comment) = &self.comment {
+            self.comment = Some(comment.replace("\"", "'"));
+        }
     }
 }

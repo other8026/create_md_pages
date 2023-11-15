@@ -11,10 +11,11 @@ const DIV_END_STRING: &'static str = "{{ app_compat_div_end() }}";
 
 impl AppCompatList {
     pub fn new_from_folder(folder: PathBuf) -> Result<Self, String> {
-        // get directory contents
         let dir = read_dir(folder).map_err(|e| format!("unable to read the folder: {}", e))?;
 
-        // this will be the app list
+        // iterate through the directory scan results
+        // filter out filenames
+        // grab data from yaml files
         let list = dir
             .filter_map(|file| {
                 let f = file.expect("error getting file from directory list").path();
@@ -38,8 +39,11 @@ impl AppCompatList {
 
                 let file = File::open(f).expect("error opening file");
 
-                let app: AppCompatApp = serde_yaml::from_reader(file)
+                let mut app: AppCompatApp = serde_yaml::from_reader(file)
                     .expect("there was an error deserializing the file, so panicking");
+
+                app.remove_double_quotes_from_all_string_fields();
+
                 Some(app)
             })
             .collect::<Vec<AppCompatApp>>();
@@ -53,20 +57,21 @@ impl AppCompatList {
     }
 
     pub fn print_cards_list(&self) -> String {
-        // keep a list of all the letters that app names start with
+        // this will kind of be like the table of contents
         let mut contents_list = vec![];
 
-        // keep a list of strings to print (joined by \n)
+        // all strings to print later
+        // includes things like `# A` and apps
         let mut strings_list = vec![];
 
         // the list should already be sorted, so just assuming that to make it easier
-        // 'Z' won't be the first, so just use this first
+        // 'Z' won't be the first, so just using it as a placeholder
         let mut last: char = FAKE_FIRST_CHAR;
 
+        // todo make the <div></div> for groups suck way less
         for app in self.0.iter() {
-            // check if the letter is the same as `last`
-            // if not, then add that
-            // this should be used so I can make a sort of TOC to link to
+            // build the "table of contents" / `contents_list`
+            // and at the same time, this first part will open or close `<div>`
             let letter = app.get_name_first_char();
             if letter != last {
                 if letter != FAKE_FIRST_CHAR {
@@ -81,10 +86,11 @@ impl AppCompatList {
                 strings_list.push(DIV_START_STRING.to_string());
             }
 
-            // checked the first letter, so add this thing to the strings list
+            // finally add the app entry
             strings_list.push(app.print_card_line());
         }
 
+        // should close the last <div>
         strings_list.push(DIV_END_STRING.to_string());
 
         // print the strings list with line breaks between
