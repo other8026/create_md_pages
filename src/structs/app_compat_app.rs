@@ -127,4 +127,12 @@ impl AppCompatApp {
             self.comment = Some(comment.replace("\"", "'"));
         }
     }
+
+    // replace all \n in comments with <br>
+    // because a new line would break the shortcode
+    pub fn fix_new_line_in_comments(&mut self) {
+        if let Some(comment) = &self.comment {
+            self.comment = Some(comment.replace("\n", "<br>"));
+        }
+    }
 }
