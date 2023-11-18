@@ -132,7 +132,22 @@ impl AppCompatApp {
     // because a new line would break the shortcode
     pub fn fix_new_line_in_comments(&mut self) {
         if let Some(comment) = &self.comment {
-            self.comment = Some(comment.replace("\n", "<br>"));
+            // this is to remove any trailing new lines
+            // which seems to always happen when typing like this:
+            //
+            // comment: |
+            //   stuff stuff stuff
+            //   more stuff
+            let comment = comment.trim();
+
+            // wrap each line with <p> tags
+            self.comment = Some(
+                comment
+                    .split("\n")
+                    .map(|s| format!("<p>{}</p>", s))
+                    .collect::<Vec<String>>()
+                    .join(""),
+            );
         }
     }
 }
