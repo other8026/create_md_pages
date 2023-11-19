@@ -4,6 +4,7 @@ use crate::stdin_functions::{
     get_string_from_user::get_string_from_user,
 };
 use crate::structs::bool_or_none::BoolOrNone;
+use chrono::Utc;
 use serde::{Deserialize, Serialize};
 use std::fs::File;
 use std::path::PathBuf;
@@ -16,6 +17,7 @@ pub struct AppCompatApp {
     pub works_without_compat_mode: bool,
     pub works_without_gms: BoolOrNone,
     pub works_installed_by_any_source: BoolOrNone,
+    pub last_date_updated: String,
     pub comment: Option<String>,
 }
 
@@ -41,6 +43,7 @@ impl AppCompatApp {
                 works_without_compat_mode: false,
                 works_without_gms: BoolOrNone(None),
                 works_installed_by_any_source: BoolOrNone(None),
+                last_date_updated: get_today_date_now_formatted(),
                 comment: None,
             });
         }
@@ -67,6 +70,7 @@ impl AppCompatApp {
             works_without_compat_mode,
             works_without_gms,
             works_installed_by_any_source,
+            last_date_updated: get_today_date_now_formatted(),
             comment,
         })
     }
@@ -150,4 +154,8 @@ impl AppCompatApp {
             );
         }
     }
+}
+
+fn get_today_date_now_formatted() -> String {
+    Utc::now().format("%Y-%m-%d").to_string()
 }
