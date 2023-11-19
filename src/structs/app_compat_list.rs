@@ -1,7 +1,6 @@
 use crate::structs::app_compat_app::AppCompatApp;
 use std::fs::{read_dir, File};
 use std::path::PathBuf;
-use chrono::{DateTime, Utc};
 
 pub struct AppCompatList(Vec<AppCompatApp>);
 
@@ -39,12 +38,6 @@ impl AppCompatList {
                 }
 
                 let file = File::open(&f).expect("error opening file");
-
-                let system_time = file.metadata().expect("cannot get metadata for a file").modified().expect("cannot get time from file");
-
-                let modified_time: DateTime<Utc> = system_time.into();
-
-                println!("filename {} last modified time: {}", filename, modified_time.format("%Y-%m-%d"));
 
                 let mut app: AppCompatApp = serde_yaml::from_reader(file)
                     .expect("there was an error deserializing the file, so panicking");
