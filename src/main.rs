@@ -22,10 +22,7 @@ fn main() -> Result<(), String> {
         let new_app = AppCompatApp::new_from_command_line().map_err(|e| e.to_string())?;
 
         // save the file
-        new_app.save_to_file(
-            &mut opt.app_files_folder.clone(),
-            format!("{}.yaml", &new_app.package_name),
-        )?;
+        new_app.save_to_file(&mut opt.app_files_folder.clone())?;
 
         Ok(())
     } else if opt.run {

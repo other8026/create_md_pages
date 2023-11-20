@@ -4,7 +4,6 @@ use crate::stdin_functions::{
     get_string_from_user::get_string_from_user,
 };
 use crate::structs::bool_or_none::BoolOrNone;
-use chrono::Utc;
 use serde::{Deserialize, Serialize};
 use std::fs::File;
 use std::path::PathBuf;
@@ -13,38 +12,47 @@ use std::path::PathBuf;
 pub struct AppCompatApp {
     pub app_name: String,
     pub package_name: String,
+    pub version: String,
+    pub repo_or_download_link: Option<String>,
+    pub description: Option<String>,
     pub works: bool,
     pub works_without_compat_mode: bool,
     pub works_without_gms: BoolOrNone,
     pub works_installed_by_any_source: BoolOrNone,
-    pub last_date_updated: String,
-    pub comment: Option<String>,
+    pub other_compatibility_comment: Option<String>,
 }
 
 impl AppCompatApp {
     // call this to create a new struct from user input from stdin
     // (this will be used to create the yaml files)
     pub fn new_from_command_line() -> Result<Self, String> {
-        // get the pretty name
-        let app_name = get_string_from_user("The app's name:", false)?;
+        let app_name = get_string_from_user("[required] The app's name:", false)?;
 
-        // get the package name
-        let package_name = get_string_from_user("Package name (i.e. com.company.app):", false)?;
+        let package_name =
+            get_string_from_user("[required] Package name (i.e. com.company.app):", false)?;
 
-        // get whether it works
-        let works = get_bool_from_user("Does the app work? (y/n)")?;
+        let version = get_string_from_user("[required] Version number (i.e. 1.23.4):", false)?;
+
+        let repo_or_download_link =
+            get_option_string_from_user("[optional] Download or repo link:")?;
+
+        let description = get_option_string_from_user("[optional] App description:")?;
+
+        let works = get_bool_from_user("[required] Does the app work? (y/n)")?;
 
         // if works is false, then just return a faster "doesn't work" thing
         if !works {
             return Ok(Self {
                 app_name,
                 package_name,
+                version,
+                repo_or_download_link,
+                description,
                 works,
                 works_without_compat_mode: false,
                 works_without_gms: BoolOrNone(None),
                 works_installed_by_any_source: BoolOrNone(None),
-                last_date_updated: get_today_date_now_formatted(),
-                comment: None,
+                other_compatibility_comment: None,
             });
         }
 
@@ -60,18 +68,20 @@ impl AppCompatApp {
         let works_installed_by_any_source =
             get_option_bool_from_user("Does the app if installed by an app other than Google Play? (y/n or just leave this empty)")?;
 
-        let comment =
+        let other_compatibility_comment =
             get_option_string_from_user("Any other comments about the app's compatibility?")?;
 
         Ok(Self {
             app_name,
             package_name,
+            version,
+            repo_or_download_link,
+            description,
             works,
             works_without_compat_mode,
             works_without_gms,
             works_installed_by_any_source,
-            last_date_updated: get_today_date_now_formatted(),
-            comment,
+            other_compatibility_comment,
         })
     }
 
@@ -97,7 +107,7 @@ impl AppCompatApp {
             general_status_icon,
             self.works_without_gms,
             self.works_installed_by_any_source,
-            if let Some(c) = &self.comment {
+            if let Some(c) = &self.other_compatibility_comment {
                 c.to_string()
             } else {
                 "".to_string()
@@ -106,8 +116,8 @@ impl AppCompatApp {
         )
     }
 
-    pub fn save_to_file(&self, path: &mut PathBuf, filename: String) -> Result<(), String> {
-        path.push(filename);
+    pub fn save_to_file(&self, path: &mut PathBuf) -> Result<(), String> {
+        path.push(format!("{}.yaml", &self.package_name));
 
         // don't save over an old file
         if path.is_file() {
@@ -127,15 +137,15 @@ impl AppCompatApp {
         self.app_name = self.app_name.replace("\"", "'");
         self.package_name = self.package_name.replace("\"", "'");
 
-        if let Some(comment) = &self.comment {
-            self.comment = Some(comment.replace("\"", "'"));
+        if let Some(comment) = &self.other_compatibility_comment {
+            self.other_compatibility_comment = Some(comment.replace("\"", "'"));
         }
     }
 
     // replace all \n in comments with <br>
     // because a new line would break the shortcode
     pub fn fix_new_line_in_comments(&mut self) {
-        if let Some(comment) = &self.comment {
+        if let Some(comment) = &self.other_compatibility_comment {
             // this is to remove any trailing new lines
             // which seems to always happen when typing like this:
             //
@@ -145,7 +155,7 @@ impl AppCompatApp {
             let comment = comment.trim();
 
             // wrap each line with <p> tags
-            self.comment = Some(
+            self.other_compatibility_comment = Some(
                 comment
                     .split("\n")
                     .map(|s| format!("<p>{}</p>", s))
@@ -154,9 +164,4 @@ impl AppCompatApp {
             );
         }
     }
-}
-
-// convenience function to get the same kind of formatted day each time
-fn get_today_date_now_formatted() -> String {
-    Utc::now().format("%Y-%m-%d").to_string()
 }
