@@ -133,32 +133,17 @@ impl AppCompatApp {
     pub fn replace_double_quotes_from_all_string_fields(&mut self) {
         self.app_name = self.app_name.replace("\"", "'");
         self.package_name = self.package_name.replace("\"", "'");
+        self.version = self.version.replace("\"", "'");
 
-        if let StringOrNone(Some(comment)) = &self.other_compatibility_comment {
-            self.other_compatibility_comment = StringOrNone(Some(comment.replace("\"", "'")));
-        }
+        self.description = self.description.replace_double_quotes_with_single_quotes();
+        self.repo_or_download_link = self.repo_or_download_link.replace_double_quotes_with_single_quotes();
+        self.other_compatibility_comment = self.other_compatibility_comment.replace_double_quotes_with_single_quotes();
     }
 
     // replace all \n in comments with <br>
     // because a new line would break the shortcode
-    pub fn fix_new_line_in_comments(&mut self) {
-        if let StringOrNone(Some(comment)) = &self.other_compatibility_comment {
-            // this is to remove any trailing new lines
-            // which seems to always happen when typing like this:
-            //
-            // comment: |
-            //   stuff stuff stuff
-            //   more stuff
-            let comment = comment.trim();
-
-            // wrap each line with <p> tags
-            self.other_compatibility_comment = StringOrNone(Some(
-                comment
-                    .split("\n")
-                    .map(|s| format!("<p>{}</p>", s))
-                    .collect::<Vec<String>>()
-                    .join(""),
-            ));
-        }
+    pub fn replace_new_lines_with_p_tags(&mut self) {
+        self.description = self.description.replace_new_lines_with_p_tags();
+        self.other_compatibility_comment = self.other_compatibility_comment.replace_new_lines_with_p_tags();
     }
 }
