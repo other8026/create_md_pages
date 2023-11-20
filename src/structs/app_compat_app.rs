@@ -7,19 +7,20 @@ use crate::structs::bool_or_none::BoolOrNone;
 use serde::{Deserialize, Serialize};
 use std::fs::File;
 use std::path::PathBuf;
+use crate::structs::string_or_none::StringOrNone;
 
 #[derive(Debug, Deserialize, Serialize)]
 pub struct AppCompatApp {
     pub app_name: String,
     pub package_name: String,
     pub version: String,
-    pub repo_or_download_link: Option<String>,
-    pub description: Option<String>,
+    pub repo_or_download_link: StringOrNone,
+    pub description: StringOrNone,
     pub works: bool,
     pub works_without_compat_mode: bool,
     pub works_without_gms: BoolOrNone,
     pub works_installed_by_any_source: BoolOrNone,
-    pub other_compatibility_comment: Option<String>,
+    pub other_compatibility_comment: StringOrNone,
 }
 
 impl AppCompatApp {
@@ -52,7 +53,7 @@ impl AppCompatApp {
                 works_without_compat_mode: false,
                 works_without_gms: BoolOrNone(None),
                 works_installed_by_any_source: BoolOrNone(None),
-                other_compatibility_comment: None,
+                other_compatibility_comment: StringOrNone(None),
             });
         }
 
@@ -107,11 +108,7 @@ impl AppCompatApp {
             general_status_icon,
             self.works_without_gms,
             self.works_installed_by_any_source,
-            if let Some(c) = &self.other_compatibility_comment {
-                c.to_string()
-            } else {
-                "".to_string()
-            },
+            self.other_compatibility_comment,
             self.works,
         )
     }
@@ -137,15 +134,15 @@ impl AppCompatApp {
         self.app_name = self.app_name.replace("\"", "'");
         self.package_name = self.package_name.replace("\"", "'");
 
-        if let Some(comment) = &self.other_compatibility_comment {
-            self.other_compatibility_comment = Some(comment.replace("\"", "'"));
+        if let StringOrNone(Some(comment)) = &self.other_compatibility_comment {
+            self.other_compatibility_comment = StringOrNone(Some(comment.replace("\"", "'")));
         }
     }
 
     // replace all \n in comments with <br>
     // because a new line would break the shortcode
     pub fn fix_new_line_in_comments(&mut self) {
-        if let Some(comment) = &self.other_compatibility_comment {
+        if let StringOrNone(Some(comment)) = &self.other_compatibility_comment {
             // this is to remove any trailing new lines
             // which seems to always happen when typing like this:
             //
@@ -155,13 +152,13 @@ impl AppCompatApp {
             let comment = comment.trim();
 
             // wrap each line with <p> tags
-            self.other_compatibility_comment = Some(
+            self.other_compatibility_comment = StringOrNone(Some(
                 comment
                     .split("\n")
                     .map(|s| format!("<p>{}</p>", s))
                     .collect::<Vec<String>>()
                     .join(""),
-            );
+            ));
         }
     }
 }
