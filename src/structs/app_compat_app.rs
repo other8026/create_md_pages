@@ -123,7 +123,7 @@ impl AppCompatApp {
     // remove all double quotes here so that they don't mess up the
     // shortcode in the `.md` file
     // This shouldn't be necessary, but I'll use as a failsafe.
-    pub fn remove_double_quotes_from_all_string_fields(&mut self) {
+    pub fn replace_double_quotes_from_all_string_fields(&mut self) {
         self.app_name = self.app_name.replace("\"", "'");
         self.package_name = self.package_name.replace("\"", "'");
 
@@ -156,6 +156,7 @@ impl AppCompatApp {
     }
 }
 
+// convenience function to get the same kind of formatted day each time
 fn get_today_date_now_formatted() -> String {
     Utc::now().format("%Y-%m-%d").to_string()
 }

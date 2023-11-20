@@ -42,7 +42,7 @@ impl AppCompatList {
                 let mut app: AppCompatApp = serde_yaml::from_reader(file)
                     .expect("there was an error deserializing the file, so panicking");
 
-                app.remove_double_quotes_from_all_string_fields();
+                app.replace_double_quotes_from_all_string_fields();
                 app.fix_new_line_in_comments();
 
                 Some(app)
