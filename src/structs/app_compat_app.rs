@@ -8,6 +8,7 @@ use crate::structs::string_or_none::StringOrNone;
 use serde::{Deserialize, Serialize};
 use std::fs::File;
 use std::path::PathBuf;
+use url::Url;
 
 #[derive(Debug, Deserialize, Serialize)]
 pub struct AppCompatApp {
@@ -102,11 +103,20 @@ impl AppCompatApp {
             _ => "❌",
         };
 
-        format!("{{{{ app_compat_card( app_name = \"{}\", package_name = \"{}\", version = \"{}\", repo_or_download_link = \"{}\", description = \"{}\", works = {}, general_status_icon = \"{}\", works_without_gms = \"{}\", works_installed_by_any_source = \"{}\", other_compatibility_comment = \"{}\" ) }}}}",
+        let link_host = match &self.repo_or_download_link {
+            StringOrNone(Some(url)) => {
+                let parsed_url = Url::parse(url).map_err(|_| format!("error parsing url for {}", &self.repo_or_download_link)).unwrap();
+                parsed_url.host_str().unwrap().to_string()
+            },
+            StringOrNone(None) => "".to_string(),
+        };
+
+        format!("{{{{ app_compat_card( app_name = \"{}\", package_name = \"{}\", version = \"{}\", repo_or_download_link = \"{}\", link_host = \"{}\", description = \"{}\", works = {}, general_status_icon = \"{}\", works_without_gms = \"{}\", works_installed_by_any_source = \"{}\", other_compatibility_comment = \"{}\" ) }}}}",
             self.app_name,
             self.package_name,
             self.version,
             self.repo_or_download_link,
+            link_host,
             self.description,
             self.works,
             general_status_icon,
