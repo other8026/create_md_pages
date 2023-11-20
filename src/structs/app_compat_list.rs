@@ -43,7 +43,7 @@ impl AppCompatList {
                     .expect("there was an error deserializing the file, so panicking");
 
                 app.replace_double_quotes_from_all_string_fields();
-                app.fix_new_line_in_comments();
+                app.replace_new_lines_with_p_tags();
 
                 Some(app)
             })

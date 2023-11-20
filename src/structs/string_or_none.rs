@@ -1,5 +1,5 @@
-use std::fmt::{Display, Formatter};
 use serde::{Deserialize, Serialize};
+use std::fmt::{Display, Formatter};
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct StringOrNone(pub Option<String>);
@@ -18,8 +18,7 @@ impl StringOrNone {
             let text = text.trim();
 
             Self(Some(
-                text
-                    .split("\n")
+                text.split("\n")
                     .map(|s| format!("<p>{}</p>", s))
                     .collect::<Vec<String>>()
                     .join(""),

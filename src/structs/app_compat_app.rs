@@ -4,10 +4,10 @@ use crate::stdin_functions::{
     get_string_from_user::get_string_from_user,
 };
 use crate::structs::bool_or_none::BoolOrNone;
+use crate::structs::string_or_none::StringOrNone;
 use serde::{Deserialize, Serialize};
 use std::fs::File;
 use std::path::PathBuf;
-use crate::structs::string_or_none::StringOrNone;
 
 #[derive(Debug, Deserialize, Serialize)]
 pub struct AppCompatApp {
@@ -102,14 +102,17 @@ impl AppCompatApp {
             _ => "❌",
         };
 
-        format!("{{{{ app_compat_card( app_name = \"{}\", package_name = \"{}\", works = \"{}\", works_without_gms = \"{}\", works_installed_by_any_source = \"{}\", comments = \"{}\", works_bool = {} ) }}}}",
+        format!("{{{{ app_compat_card( app_name = \"{}\", package_name = \"{}\", version = \"{}\", repo_or_download_link = \"{}\", description = \"{}\", works = {}, general_status_icon = \"{}\", works_without_gms = \"{}\", works_installed_by_any_source = \"{}\", other_compatibility_comment = \"{}\" ) }}}}",
             self.app_name,
             self.package_name,
+            self.version,
+            self.repo_or_download_link,
+            self.description,
+            self.works,
             general_status_icon,
             self.works_without_gms,
             self.works_installed_by_any_source,
             self.other_compatibility_comment,
-            self.works,
         )
     }
 
@@ -136,14 +139,20 @@ impl AppCompatApp {
         self.version = self.version.replace("\"", "'");
 
         self.description = self.description.replace_double_quotes_with_single_quotes();
-        self.repo_or_download_link = self.repo_or_download_link.replace_double_quotes_with_single_quotes();
-        self.other_compatibility_comment = self.other_compatibility_comment.replace_double_quotes_with_single_quotes();
+        self.repo_or_download_link = self
+            .repo_or_download_link
+            .replace_double_quotes_with_single_quotes();
+        self.other_compatibility_comment = self
+            .other_compatibility_comment
+            .replace_double_quotes_with_single_quotes();
     }
 
     // replace all \n in comments with <br>
     // because a new line would break the shortcode
     pub fn replace_new_lines_with_p_tags(&mut self) {
         self.description = self.description.replace_new_lines_with_p_tags();
-        self.other_compatibility_comment = self.other_compatibility_comment.replace_new_lines_with_p_tags();
+        self.other_compatibility_comment = self
+            .other_compatibility_comment
+            .replace_new_lines_with_p_tags();
     }
 }
