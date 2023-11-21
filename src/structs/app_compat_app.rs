@@ -70,8 +70,9 @@ impl AppCompatApp {
         let works_installed_by_any_source =
             get_option_bool_from_user("[optional][y/n] Does the app if installed by an app other than Google Play? (y/n or just leave this empty)")?;
 
-        let other_compatibility_comment =
-            get_option_string_from_user("[optional] Any other comments about the app's compatibility?")?;
+        let other_compatibility_comment = get_option_string_from_user(
+            "[optional] Any other comments about the app's compatibility?",
+        )?;
 
         Ok(Self {
             app_name,
@@ -105,9 +106,11 @@ impl AppCompatApp {
 
         let link_host = match &self.repo_or_download_link {
             StringOrNone(Some(url)) => {
-                let parsed_url = Url::parse(url).map_err(|_| format!("error parsing url for {}", &self.repo_or_download_link)).unwrap();
+                let parsed_url = Url::parse(url)
+                    .map_err(|_| format!("error parsing url for {}", &self.repo_or_download_link))
+                    .unwrap();
                 parsed_url.host_str().unwrap().to_string()
-            },
+            }
             StringOrNone(None) => "".to_string(),
         };
 

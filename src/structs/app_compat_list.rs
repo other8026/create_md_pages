@@ -2,16 +2,24 @@ use crate::structs::app_compat_app::AppCompatApp;
 use std::fs::{read_dir, File};
 use std::path::PathBuf;
 
-pub struct AppCompatList(Vec<AppCompatApp>);
+pub struct AppCompatList {
+    apps: Vec<AppCompatApp>,
+    toc: Vec<String>,
+}
 
 const FAKE_FIRST_CHAR: char = 'z';
 
-const DIV_START_STRING: &'static str = "{{ app_compat_div_start() }}";
-const DIV_END_STRING: &'static str = "{{ app_compat_div_end() }}";
+const DIV_START_STRING: &'static str =
+    "{{ raw_html( html = \"<div class='app-compat-list-section'>\") }}";
+const DIV_END_STRING: &'static str = "{{ raw_html( html = \"</div>\") }}";
+
+const TOC_CLASS: &'static str = "toc";
 
 impl AppCompatList {
     pub fn new_from_folder(folder: PathBuf) -> Result<Self, String> {
         let dir = read_dir(folder).map_err(|e| format!("unable to read the folder: {}", e))?;
+
+        let mut toc = vec![];
 
         // iterate through the directory scan results
         // filter out filenames
@@ -42,6 +50,11 @@ impl AppCompatList {
                 let mut app: AppCompatApp = serde_yaml::from_reader(file)
                     .expect("there was an error deserializing the file, so panicking");
 
+                let letter: String = app.get_name_first_char().to_lowercase().to_string();
+                if !toc.contains(&letter) {
+                    toc.push(letter);
+                }
+
                 app.replace_double_quotes_from_all_string_fields();
                 app.replace_new_lines_with_p_tags();
 
@@ -49,12 +62,13 @@ impl AppCompatList {
             })
             .collect::<Vec<AppCompatApp>>();
 
-        Ok(Self(list))
+        Ok(Self { apps: list, toc })
     }
 
     pub fn sort_list(&mut self) {
-        self.0
+        self.apps
             .sort_by(|a, b| a.app_name.to_lowercase().cmp(&b.app_name.to_lowercase()));
+        self.toc.sort();
     }
 
     pub fn print_cards_list(&self) -> String {
@@ -70,7 +84,7 @@ impl AppCompatList {
         let mut last: char = FAKE_FIRST_CHAR;
 
         // todo make the <div></div> for groups suck way less
-        for app in self.0.iter() {
+        for app in self.apps.iter() {
             // build the "table of contents" / `contents_list`
             // and at the same time, this first part will open or close `<div>`
             let letter = app.get_name_first_char();
@@ -96,5 +110,20 @@ impl AppCompatList {
 
         // print the strings list with line breaks between
         strings_list.join("\n")
+    }
+
+    pub fn print_md_toc(&self) -> String {
+        self.toc
+            .iter()
+            .map(|letter| format!("[{}](#{})", letter.to_uppercase(), letter))
+            .collect::<Vec<String>>()
+            .join(" | ")
+    }
+
+    pub fn print_md_toc_wrapped_in_div(&self) -> String {
+        format!("{{{{ raw_html( html = \"<div class='{}'>\") }}}}\n{}\n{{{{ raw_html( html = \"</div>\") }}}}",
+                TOC_CLASS,
+            self.print_md_toc()
+        )
     }
 }
