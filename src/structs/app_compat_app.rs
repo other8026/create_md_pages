@@ -36,11 +36,11 @@ impl AppCompatApp {
         let version = get_string_from_user("[required] Version number (i.e. 1.23.4):", false)?;
 
         let repo_or_download_link =
-            get_option_string_from_user("[optional] Download or repo link:")?;
+            get_option_string_from_user("[optional] Download or repo url:")?;
 
         let description = get_option_string_from_user("[optional] App description:")?;
 
-        let works = get_bool_from_user("[required] Does the app work? (y/n)")?;
+        let works = get_bool_from_user("[required][y/n] Does the app work?")?;
 
         // if works is false, then just return a faster "doesn't work" thing
         if !works {
@@ -60,18 +60,18 @@ impl AppCompatApp {
 
         // get whether it requires exploit protection compatibility mode
         let works_without_compat_mode = get_bool_from_user(
-            "Does the app work without Exploit Protection Compatibility Mode? (y/n)",
+            "[required][y/n] Does the app work without Exploit Protection Compatibility Mode?",
         )?;
 
         // get whether the app requires Google Play etc to be installed in the same profile
-        let works_without_gms = get_option_bool_from_user("Does the app work without Google Play being installed in the same profile? (y/n or just leave this empty)")?;
+        let works_without_gms = get_option_bool_from_user("[optional][y/n] Does the app work without Google Play being installed in the same profile?")?;
 
         // get whether the app requires that it's installed by Google Play
         let works_installed_by_any_source =
-            get_option_bool_from_user("Does the app if installed by an app other than Google Play? (y/n or just leave this empty)")?;
+            get_option_bool_from_user("[optional][y/n] Does the app if installed by an app other than Google Play? (y/n or just leave this empty)")?;
 
         let other_compatibility_comment =
-            get_option_string_from_user("Any other comments about the app's compatibility?")?;
+            get_option_string_from_user("[optional] Any other comments about the app's compatibility?")?;
 
         Ok(Self {
             app_name,
