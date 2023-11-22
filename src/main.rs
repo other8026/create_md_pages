@@ -52,9 +52,10 @@ fn main() -> Result<(), String> {
         md_file
             .write_all(
                 format!(
-                    "+++\ntitle = \"{}\"\ndescription = \"{}\"\n\n[extra]\n\nrelated = []\n+++\n{}\n{}\n{}\n\n{}",
+                    "+++\ntitle = \"{}\"\ndescription = \"{}\"\n\naliases = [\"{}\"]\n\n[extra]\n\nrelated = []\n+++\n{}\n{}\n{}\n\n{}",
                     yaml_file.title,
                     yaml_file.description,
+                    yaml_file.alias,
                     option_to_string_or_empty(yaml_file.before_text),
                     apps.print_md_toc_wrapped_in_div(),
                     apps.print_cards_list(),
